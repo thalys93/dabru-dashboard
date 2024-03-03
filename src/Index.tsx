@@ -1,13 +1,8 @@
 import { Outlet } from "react-router-dom"
 
-function Index() {
-
+function Index() {  
   return (
-    <>
-      <section>
-        <Outlet />
-      </section>
-    </>
+      <Outlet />      
   )
 }
 

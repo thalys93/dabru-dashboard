@@ -1,16 +1,32 @@
+import { Container, Figure, Row } from "react-bootstrap"
 
+interface errorProps {
+  pageName: string
+  title?: string | JSX.Element
+  errorCode?: number
+  message?: string
+}
 
-function ErrorPage() {    
-    const handleBack = () => {
-        window.location.href = '/dashboard/home'    
-    }
+function Error_Element({ ...props }: errorProps) {
 
   return (
-    <div className="flex flex-col justify-center items-center bg-stone-700 rounded-lg">
-        <h1 className="font-bebas font-3xl text-stone-50">404 - Page Not Found</h1>
-        <button onClick={handleBack} className="bg-red-900 text-stone-50 p-5 rounded-lg hover:bg-red-500 hover:text-stone-300">Voltar para a Home</button>         
-    </div>
+    <Container fluid className='h-screen'>
+      <Row>
+        <div className='flex flex-col items-start'>
+          <span className="font-blinker uppercase text-md text-stone-400 pb-2 pt-3 select-none"> {props.pageName} </span>
+          <div className='w-[10rem] bg-stone-300 h-[1px]'></div>
+        </div>
+
+        <div className='flex flex-col items-center pt-[5rem]'>
+          <h1 className='text-3xl text-stone-300 font-abel select-none'> {props.title} {props.errorCode}</h1>
+          <Figure>
+            <Figure.Image src="/svg/error.svg" alt="404" className='w-[15rem] h-[15rem]' />
+            <Figure.Caption className='text-center text-stone-400 font-blinker select-none'>{props.message}</Figure.Caption>
+          </Figure>
+        </div>
+      </Row>
+    </Container>
   )
 }
 
-export default ErrorPage
+export default Error_Element

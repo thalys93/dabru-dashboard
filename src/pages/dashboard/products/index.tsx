@@ -1,11 +1,11 @@
-import { PlusCircle } from "@phosphor-icons/react"
+import { DotsThreeOutlineVertical, ImageSquare, ListBullets, PlusCircle, Warehouse } from "@phosphor-icons/react"
 import { useState, useEffect, Suspense } from "react"
 import { Image, Modal, Spinner, Table } from "react-bootstrap"
 import { Link } from "react-router-dom"
 import { APIproduct, deleteProduct, getProducts } from "../../../utils/api/product"
 import { useCookies } from "react-cookie"
 import { Helmet } from "react-helmet"
-import { Slide, ToastContainer, toast } from "react-toastify";
+import { Slide, toast } from "react-toastify";
 import { deleteObject, getStorage, ref as storageRef } from 'firebase/storage';
 
 function Products() {
@@ -139,28 +139,42 @@ function Products() {
                 <title> Dashboard - Meus Produtos </title>
             </Helmet>
 
-            <ToastContainer
-                position="top-right"
-                autoClose={3000}
-                hideProgressBar={false}
-                newestOnTop={true}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-            />
-            <h1 className="text-xl font-blinker text-stone-400 select-none"> Meus Produtos </h1>
+            <h1 className="text-md font-blinker text-stone-400 select-none uppercase"> Meus Produtos </h1>
             <div className='w-[10rem] h-[1px] bg-stone-300'></div>
             <article className="h-full w-full mt-3">
                 <Table bordered hover>
                     <thead>
                         <tr className='font-blinker text-stone-400 font-extralight select-none'>
-                            <th>Foto</th>
-                            <th>Nome</th>
-                            <th>Preço</th>
-                            <th>Estoque</th>
-                            <th>Ações</th>
+                            <th>
+                                <div className="flex flex-row gap-1 items-center">
+                                    <ImageSquare />
+                                    Foto
+                                </div>
+                            </th>
+                            <th>
+                                <div className="flex flex-row gap-1 items-center">
+                                    <ListBullets />
+                                    Nome
+                                </div>
+                            </th>
+                            <th>
+                                <div className="flex flex-row gap-1 items-center">
+                                    <ListBullets />
+                                    Preço
+                                </div>
+                            </th>
+                            <th>
+                                <div className="flex flex-row gap-1 items-center">
+                                    <Warehouse />
+                                    Estoque
+                                </div>
+                            </th>
+                            <th>
+                                <div className="flex flex-row gap-1 items-center">
+                                    <DotsThreeOutlineVertical />
+                                    Ações
+                                </div>
+                            </th>
                         </tr>
                     </thead>
                     <tbody>

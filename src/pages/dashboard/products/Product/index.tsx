@@ -227,6 +227,7 @@ function Product() {
         draggable
         pauseOnHover
       />
+      
       <h1 className="text-xl font-blinker text-stone-400 select-none">{product.name} </h1>
       <div className='w-[rem] h-[1px] bg-stone-300'></div>
       <article className="h-full w-full mt-3">

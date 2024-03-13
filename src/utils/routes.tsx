@@ -4,16 +4,21 @@ import Index from '../Index';
 import Login from '../pages/login';
 import { useEffect } from 'react';
 import Dashboard from '../pages/dashboard';
-import ErrorPage from '../components/error';
 import Products from '../pages/dashboard/products';
 import Home from '../pages/dashboard/home';
 import New_Product from '../pages/dashboard/products/NewProduct';
 import Product from '../pages/dashboard/products/Product';
+import User_Page from '../pages/dashboard/user_page';
+import Orders from '../pages/dashboard/orders';
+import Error_Element from '../components/error';
+import Support from '../pages/dashboard/support';
+import Order from '../pages/dashboard/orders/Order';
+import New_Order from '../pages/dashboard/orders/NewOrder';
 
 const router = createBrowserRouter([
     {
         path: '/',
-        element: <Index />,
+        element: <Index />,                
         children: [
             {
                 path: '/auth/login',
@@ -22,9 +27,8 @@ const router = createBrowserRouter([
         ]
     },
     {
-        path: 'Dashboard/',
-        element: <Dashboard />,
-        errorElement: <ErrorPage />,
+        path: 'dashboard/',
+        element: <Dashboard />,           
         children: [
             {
                 path: 'home',
@@ -43,34 +47,37 @@ const router = createBrowserRouter([
                 element: <Product />
                 
             },
-            {
-                path: 'orders',
-                children: [
-                    {
-                        path: 'order/:id'
-                    },
-                    {
-                        path: 'order-Add'
-                    },
-                    {
-                        path: 'order-Edit/:id'
-                    }
-                ]
+            {                
+                path: 'profile/:id',
+                element: <User_Page/>
             },
             {
-                path: 'atelie',
+                path: 'orders', 
+                element: <Orders/>              
+            },
+            { 
+                path: 'orders/:id',
+                element: <Order/>
+            },
+            { 
+                path: 'orders/new',
+                element: <New_Order/>
             },
             {
-                path: 'statistics'
+                path: 'statistics',
+                element: <Error_Element pageName="Estatísticas" title={<span>Página ainda não <br /> implementada</span>} message='Em Breve , estatísticas..' errorCode={404}/>
             },
             {
-                path: 'finances'
+                path: 'finances',
+                element: <Error_Element pageName="Finanças" title={<span>Página ainda não <br /> implementada</span>} message='Em Breve , finanças..' errorCode={404}/>
             },
             {
-                path: 'settings'
+                path: 'settings',
+                element: <Error_Element pageName='Configurações' title={<span>Página ainda não <br /> implementada</span>} message='Em Breve , configurações..' errorCode={404}/>
             },
             {
-                path: 'support'
+                path: 'support',
+                element: <Support/>
             }
         ]
     }

@@ -1,6 +1,7 @@
 import { apiURL_Local } from "./api";
 
 export interface APIsendOrder {
+    id: string;
     client_: string;
     address: [];
     paymentForm: string;

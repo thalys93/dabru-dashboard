@@ -1,5 +1,5 @@
 import { MagnifyingGlass } from '@phosphor-icons/react';
-import { Container, Form, InputGroup } from 'react-bootstrap'
+import { Stack , Form, InputGroup } from 'react-bootstrap'
 
 interface searchBarProps {
     queryText: string;
@@ -11,14 +11,14 @@ function DashboardSearchBar(props: searchBarProps) {
         props.onSearchItem(query)
     }
     return (
-        <Container>
-            <div className='flex items-center text-stone-400'>                
+        <Stack direction="horizontal">
+            <InputGroup className='flex items-center text-stone-400 w-[50rem]'>
                 <InputGroup.Text className='bg-transparent border-0'>
                     <MagnifyingGlass  weight='light'/>
                 </InputGroup.Text>                
-                <Form.Control type="text" onChange={(e) => handleSearch(e.target.value)} placeholder='Pesquise Algo' className='border-0'/>
-            </div>
-        </Container>
+                <Form.Control type="text" onChange={(e) => handleSearch(e.target.value)} placeholder='Pesquise Algo' className='border-1 rounded border-stone-200'/>
+            </InputGroup>
+        </Stack>
     )
 }
 

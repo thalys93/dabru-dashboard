@@ -28,7 +28,7 @@ export interface newProduct {
   observations: string;
 }
 
-interface ImageProps {
+export interface ImageProps {
   name: string;
   size: number;
   type: string;
@@ -192,6 +192,7 @@ function New_Product() {
         draggable
         pauseOnHover
       />
+      
       <h1 className="text-xl font-blinker text-stone-400 select-none">Adicionar um novo Produto </h1>
       <div className='w-[rem] h-[1px] bg-stone-300'></div>
       <article className="h-full w-full mt-3">

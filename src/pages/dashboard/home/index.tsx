@@ -2,6 +2,8 @@ import { Spinner } from 'react-bootstrap'
 import React, { Suspense, lazy, useEffect, useState } from 'react'
 import { ClipboardText, Money, Package, Users } from '@phosphor-icons/react'
 import Pie_Chart from '../../../components/dashboard_charts/Pie_Chart'
+import { useCookies } from 'react-cookie'
+import { getOrders } from '../../../utils/api/orders'
 
 const Card = lazy(() => delayStateOfCards(import('./../../../components/dashboard_cards/Cards')))
 const Customers_List = lazy(() => delayState(import('./../../../components/dashboard_list/Customers_List')))
@@ -22,7 +24,7 @@ async function delayState(promise: Promise<typeof import("./../../../components/
 interface ResumeCard {
   id: number,
   title: string,
-  value: string,
+  value: string | number,
   icon: JSX.Element,
   color: string,
   percent: string
@@ -33,7 +35,7 @@ interface CardWithDelayProps {
   delay: number
 }
 
-interface ChartsWithDelayProps {  
+interface ChartsWithDelayProps {
   delay: number
 }
 
@@ -90,7 +92,7 @@ const CardWithDelay: React.FC<CardWithDelayProps> = ({ card, delay }) => {
     <div className='hover:scale-95 transition-all duration-300'>
       <Card
         title={card.title}
-        value={card.value}
+        value={card.value as never}
         icon={card.icon}
         color={card.color}
         percent={card.percent}
@@ -103,13 +105,50 @@ const CardWithDelay: React.FC<CardWithDelayProps> = ({ card, delay }) => {
   );
 };
 
-function Home() {
+function Home() {  
+  const [cookies] = useCookies(['authToken'])
+  const [orders, setOrders] = useState([])
+  const [customers, setCustomers] = useState([])
+  const [products, setProducts] = useState([])
+  const [sales, setSales] = useState([])
+  const [trend, setTrend] = useState('')
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = new Promise((resolve, reject) => {
+        getOrders(cookies.authToken).then((data) => {
+          if (data.message === 'Nenhum pedido encontrado') {
+            resolve(data.message)
+            setOrders([])
+          } else {
+            resolve(data)
+            setOrders(data)
+          }
+        }).catch((err) => {
+          reject(err)
+        })
+      })            
+      await res            
+    }
+
+    fetchData()
+  }, [])
+
   const diaryResumeCards = [
     { id: 1, title: 'Clientes', value: '1000', icon: <Users />, color: '#0EA5E9', percent: '+10%' },
     { id: 2, title: 'Vendas', value: 'R$ 15,00', icon: <Money />, color: '#255853', percent: '-20%' },
     { id: 3, title: 'Lucro', value: '80%', icon: <Package />, color: '#80B01A', percent: '+5%' },
-    { id: 4, title: 'Pedidos', value: '30', icon: <ClipboardText />, color: '#B01AAA', percent: '-2%' }
+    { id: 4, title: 'Pedidos', value: orders.length, icon: <ClipboardText />, color: '#B01AAA', percent: orders.length === 0 ? '0%' : percentCalc(orders.length)}
   ]
+
+  
+
+  function percentCalc(value: number) {
+    const referenceValue = 100;
+    const percent = (value / referenceValue) * 100;         
+
+    return `${percent.toFixed(2)} %`;
+  }
 
   return (
     <section className='flex flex-col items-start justify-start m-3'>

@@ -1,4 +1,4 @@
-import { ArrowDown, ArrowUp } from "@phosphor-icons/react"
+import { ArrowDown, ArrowUp, Placeholder } from "@phosphor-icons/react"
 import { useEffect, useState } from "react"
 import { Col, Container, Row } from "react-bootstrap"
 
@@ -11,17 +11,20 @@ interface CardProps {
 }
 
 function Cards({ ...props }: CardProps) {
-
-  const [negativeState, setNegativeState] = useState(false)
+  
   const [negativeClass, setNegativeClass] = useState('')
+  const [trend, setTrend] = useState('')
 
   const checkPositivePercent = (percent: string) => {
     if (percent.includes('-')) {
       setNegativeClass('text-red-500')
-      setNegativeState(true)
-    } else {
+      setTrend('down')      
+    } else if (percent.includes('+')) {
       setNegativeClass('text-green-500')
-      setNegativeState(false)
+      setTrend('up')      
+    } else {
+      setNegativeClass('text-stone-500')
+      setTrend('flat')      
     }
   }
 
@@ -47,7 +50,13 @@ function Cards({ ...props }: CardProps) {
           </section>
 
           <div className="flex flex-row gap-1 items-center">
-            {!negativeState ? <ArrowUp className={`font-blinker ${negativeClass} font-light select-none`} /> : <ArrowDown className={`font-blinker ${negativeClass} font-light select-none`} />}
+            {trend && (
+              <>
+                {trend === 'up' && <ArrowUp className={`font-blinker ${negativeClass} font-light select-none`} />}
+                {trend === 'down' && <ArrowDown className={`font-blinker ${negativeClass} font-light select-none`} />}
+                {trend === 'flat' && <Placeholder className={`font-blinker ${negativeClass} font-light select-none`} />}
+              </>
+            )}
             <span className={`font-blinker ${negativeClass} font-light text-sm select-none`}>{props?.percent}</span>
             <span className="font-blinker text-sm text-stone-500 lowercase"> Nas Ultimas semanas</span>
           </div>

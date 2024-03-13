@@ -20,3 +20,41 @@ export const doLogin = async (userData: LoginProps) => {
     }
 }
 
+export const sendSuggestionEmail = async (userEmail: string, userName: string, suggestion: string, userToken: string) => {
+    try {
+        const sendData = {
+            userEmail,
+            userName,
+            suggestion
+        }
+        const res = await apiURL_Local.post(`auth/send-suggestions`, sendData , {
+            headers: {
+                Authorization: `Bearer ${userToken}`
+            },
+        });
+        return res.data;
+    } catch (err) {
+        throw 500;
+    }
+}
+
+export const sendReportEmail = async (userEmail: string, userName: string, errorReport: string, userToken: string) => {
+    try {
+        const sendData = {
+            userEmail,
+            userName,
+            errorReport
+        }
+
+        const res = await apiURL_Local.post(`auth/send-report`, sendData, {
+            headers: {
+                Authorization: `Bearer ${userToken}`
+            },       
+        });
+        return res.data;
+    } catch (err) {
+        throw 500;
+    }
+}
+
+

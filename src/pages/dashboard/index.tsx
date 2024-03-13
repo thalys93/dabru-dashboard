@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { Outlet } from 'react-router-dom'
 import { initializeApp } from '@firebase/app'
 import { Helmet } from 'react-helmet'
+import { ToastContainer } from 'react-toastify'
 
 
 
@@ -41,13 +42,26 @@ function Dashboard() {
       <Helmet>
         <title> Dashboard - Inicio </title>
       </Helmet>
-      <Row>
-        <Col sm={menuOpen ? 4 : 1} className={!menuOpen ? 'bg-stone-600 w-[6rem]' : "bg-stone-600 w-[18rem]"}>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
+      
+      <Row className='flex justify-evenly w-full'>
+        <Col sm={menuOpen ? 1 : 10} className={!menuOpen ? 'bg-stone-600 w-[6.5rem]' : "bg-stone-600 w-[16rem]"}>
           <DashboardSideNav isOpen={menuOpen} onToggle={handleToggleMenu} />
         </Col>
-        <Col sm={menuOpen ? 9 : 11}>
-          <DashboardNav />          
-          <Outlet/>        
+        <Col>
+          <DashboardNav />
+          <Outlet />
         </Col>
       </Row>
     </Container>

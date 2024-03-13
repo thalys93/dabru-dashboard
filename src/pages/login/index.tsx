@@ -44,19 +44,32 @@ function Login() {
 
   useEffect(() => {
     const checkIsHaveToken = async () => {
-      toast.info("Verificando login ...", { transition: Slide })
-      await new Promise((resolve) => setTimeout(resolve, 3500))
-      if (cookies.authToken) {
-        toast.success("Login Efetuado com Sucesso", { transition: Slide })
-        await new Promise((resolve) => setTimeout(resolve, 3500))
-        window.location.href = '/dashboard/home'
-      } else {
-        toast.warn("Você não está logado", { transition: Slide })
-      }
-    }
+      const checkPromise = new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if (cookies.authToken) {
+            resolve(true)
+          } else {
+            reject(true)
+          }
+        } , 1500)
+      });
 
+      const result = await toast.promise(
+        checkPromise,
+        {
+          pending: "Verificando login ...",
+          success: "Login Efetuado com Sucesso",
+          error: "Você não está logado"
+        }
+      )
+
+      if (result === true) {
+        window.location.href = '/dashboard/home'
+      }
+
+    }
     checkIsHaveToken()
-  }, [cookies.authToken])
+  }, [])
 
   const handleSendData = async (values: LoginProps) => {
     const sendFormData = {
@@ -80,7 +93,7 @@ function Login() {
         setCookie('authToken', res.token, { path: '/', expires: expirationDate })
         setCookie('userData', JSON.stringify(res.userData), { path: '/', expires: expirationDate })
         setLoading(false)
-        await new Promise((resolve) => setTimeout(resolve, 5000))
+        await new Promise((resolve) => setTimeout(resolve, 2500))
         window.location.href = '/dashboard/home'
       }
 

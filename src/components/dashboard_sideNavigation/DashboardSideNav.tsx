@@ -101,7 +101,7 @@ function DashboardSideNav({ isOpen, onToggle }: { isOpen: boolean, onToggle: (va
 
         <div className="w-[3rem] bg-stone-200 h-[1px] mt-3 mb-3"></div>
 
-        <ul className="mt-5 flex flex-col">          
+        <ul className="mt-5 flex flex-col cursor-pointer">          
             <li className={menuItemDefaultClass}>
               <DoorOpen size={iconDefaultSize} weight="fill" />
             </li>          
@@ -145,7 +145,7 @@ function DashboardSideNav({ isOpen, onToggle }: { isOpen: boolean, onToggle: (va
           ))}
         </ul>
 
-        <ul className="mt-5 flex flex-col">
+        <ul className="mt-5 flex flex-col cursor-pointer">
           <button onClick={handleLogout}>
             <li className={menuItemDefaultClass}>
               <DoorOpen size={iconDefaultSize} weight="fill" /> Fazer Logout

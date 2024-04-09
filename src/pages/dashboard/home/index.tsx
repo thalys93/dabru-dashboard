@@ -7,6 +7,7 @@ import { getOrders } from '../../../utils/api/orders'
 
 const Card = lazy(() => delayStateOfCards(import('./../../../components/dashboard_cards/Cards')))
 const Customers_List = lazy(() => delayState(import('./../../../components/dashboard_list/Customers_List')))
+
 async function delayStateOfCards(promise: Promise<typeof import("./../../../components/dashboard_cards/Cards")>) {
   await new Promise(resolve => {
     setTimeout(resolve, 3500)

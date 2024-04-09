@@ -20,14 +20,16 @@ export const doLogin = async (userData: LoginProps) => {
     }
 }
 
-export const sendSuggestionEmail = async (userEmail: string, userName: string, suggestion: string, userToken: string) => {
-    try {
-        const sendData = {
-            userEmail,
-            userName,
-            suggestion
-        }
-        const res = await apiURL_Local.post(`auth/send-suggestions`, sendData , {
+interface SuggestionProps {
+    userEmail: string;
+    userName: string;
+    id: string;
+    suggestion: string;
+}
+
+export const sendSuggestionEmail = async (data: SuggestionProps, userToken: string) => {
+    try {      
+        const res = await apiURL_Local.post(`auth/send-suggestions`, data , {
             headers: {
                 Authorization: `Bearer ${userToken}`
             },
@@ -38,15 +40,15 @@ export const sendSuggestionEmail = async (userEmail: string, userName: string, s
     }
 }
 
-export const sendReportEmail = async (userEmail: string, userName: string, errorReport: string, userToken: string) => {
-    try {
-        const sendData = {
-            userEmail,
-            userName,
-            errorReport
-        }
-
-        const res = await apiURL_Local.post(`auth/send-report`, sendData, {
+interface ReportProps {
+    userEmail: string;
+    userName: string;
+    id: string;
+    errorReport: string;
+}
+export const sendReportEmail = async (data: ReportProps,  userToken: string) => {
+    try {    
+        const res = await apiURL_Local.post(`auth/send-report`, data, {
             headers: {
                 Authorization: `Bearer ${userToken}`
             },       

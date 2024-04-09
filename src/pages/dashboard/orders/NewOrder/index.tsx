@@ -1,17 +1,27 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect } from "react"
-import { Col, Container, FloatingLabel, Form, Row, Spinner } from "react-bootstrap"
+import { Col, Container, FloatingLabel, Form, Image, InputGroup, ListGroup, ListGroupItem, Row, Spinner } from "react-bootstrap"
 import { useCookies } from "react-cookie";
 import { Slide, ToastContainer, toast } from "react-toastify";
 import { Helmet } from "react-helmet";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
 import { APIproduct, getProducts } from "../../../../utils/api/product";
 import * as formik from 'formik';
 import * as yup from 'yup';
+import { AxiosResponse } from "axios";
+import { CaretLeft, CaretRight } from "@phosphor-icons/react";
+import inputMask from 'react-input-mask';
+
 
 function New_Order() {
-  const [products, setProducts] = useState()
+  const [products, setProducts] = useState<APIproduct[]>([])
   const [loading, setLoading] = useState(false)
+  const [inputLoading, setInputLoading] = useState(false)
+  const [street, setStreet] = useState('')
+  const [complement, setComplement] = useState('')
+  const [city, setCity] = useState('')
+  const [state, setState] = useState('')
   const [cookies] = useCookies(['authToken'])
   const navigate = useNavigate()
   const { Formik } = formik;
@@ -19,11 +29,7 @@ function New_Order() {
   const newOrderSchema = yup.object().shape({
     clientFirstName: yup.string().required('Campo obrigatório'),
     clientLastName: yup.string().required('Campo obrigatório'),
-    street: yup.string().required('Campo obrigatório'),
     number: yup.string().required('Campo obrigatório'),
-    complement: yup.string().required('Campo obrigatório'),
-    city: yup.string().required('Campo obrigatório'),
-    state: yup.string().required('Campo obrigatório'),
     zipCode: yup.string().required('Campo obrigatório'),
     country: yup.string().required('Campo obrigatório'),
     paymentForm: yup.string().required('Campo obrigatório'),
@@ -40,11 +46,7 @@ function New_Order() {
   const initialValues = {
     clientFirstName: '',
     clientLastName: '',
-    street: '',
     number: '',
-    complement: '',
-    city: '',
-    state: '',
     zipCode: '',
     country: '',
     paymentForm: '',
@@ -62,21 +64,49 @@ function New_Order() {
     const fetchProducts = async () => {
       setLoading(true)
       try {
-        const res = await new Promise((resolve) => {
-          getProducts().then((res) => {                                   
-            resolve(res)            
+        await new Promise((resolve) => {
+          getProducts().then((res) => {
+            if (res.statusCode === 200) {
+              setProducts(res.found)
+              setLoading(false)
+              resolve(res)
+            }
           })
-        })                       
-        setProducts(res.found)
+        })
       } catch (e) {
         console.log(e)
         setLoading(false)
       }
     }
     fetchProducts()
-        
   }, [])
 
+
+  const checkCEP = async (cep: string) => {
+    setInputLoading(true)
+    try {
+      const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
+      const data = await response.json()
+
+      if (data.erro) {
+        setInputLoading(false)
+        console.log("CEP inválido")
+        return
+      } else {
+        setStreet(data.logradouro)
+        setCity(data.localidade)
+        setComplement(data.complemento)
+        setState(data.uf)
+        setTimeout(() => {
+          setInputLoading(false)
+        }, 1500)
+      }
+
+    } catch (e) {
+      console.log(e)
+      setInputLoading(false)
+    }
+  }
 
 
   return (
@@ -97,7 +127,7 @@ function New_Order() {
                     <Col sm>
                       <h1 className="text-xl font-blinker text-stone-400 select-none mb-3"> Dados do Cliente </h1>
                       <Form.Group className="flex flex-col lg:flex-row gap-3 lg:mb-5">
-                        <FloatingLabel label="Nome do Cliente">
+                        <FloatingLabel label="Nome">
                           <Form.Control
                             type="text"
                             name="client"
@@ -122,27 +152,43 @@ function New_Order() {
 
                       <h1 className="text-xl font-blinker text-stone-400 select-none mb-3"> Endereço </h1>
                       <Form.Group className="flex flex-col lg:flex-row gap-3 lg:mb-5">
-                        <FloatingLabel label="Rua">
+
+                        <FloatingLabel label="CEP">
                           <Form.Control
                             type="text"
-                            name="street"
-                            value={values.street}
+                            as={inputMask}
+                            mask="99999-999"
+                            name="zipCode"
+                            value={values.zipCode}
                             onChange={handleChange}
-                            isInvalid={touched.street && !!errors.street}
+                            onBlur={(e: React.FocusEvent<HTMLInputElement>) => checkCEP(e.target.value)}
+                            isInvalid={touched.zipCode && !!errors.zipCode}
                           />
-                          <Form.Control.Feedback type="invalid">{errors.street}</Form.Control.Feedback>
+                          <Form.Control.Feedback type="invalid">{errors.zipCode}</Form.Control.Feedback>
                         </FloatingLabel>
 
-                        <FloatingLabel label="Complemento">
-                          <Form.Control
-                            type="string"
-                            name="complement"
-                            value={values.complement}
-                            onChange={handleChange}
-                            isInvalid={touched.complement && !!errors.complement}
-                          />
-                          <Form.Control.Feedback type="invalid">{errors.complement}</Form.Control.Feedback>
-                        </FloatingLabel>
+                        {inputLoading ? (
+                          <FloatingLabel label="Rua" className="animate-pulse">
+                            <Form.Control
+                              type="text"
+                              name="street"
+                              value={street}
+                              onChange={(e) => setStreet(e.target.value)}
+                              required
+                              disabled
+                            />
+                          </FloatingLabel>
+                        ) : (
+                          <FloatingLabel label="Rua">
+                            <Form.Control
+                              type="text"
+                              name="street"
+                              value={street}
+                              onChange={(e) => setStreet(e.target.value)}
+                              required
+                            />
+                          </FloatingLabel>
+                        )}
 
                         <FloatingLabel label="Número">
                           <Form.Control
@@ -158,73 +204,150 @@ function New_Order() {
                       </Form.Group>
 
                       <Form.Group className="flex flex-col lg:flex-row gap-3 lg:mb-5">
-                        <FloatingLabel label="CEP">
-                          <Form.Control
-                            type="text"
-                            name="zipCode"
-                            value={values.zipCode}
-                            onChange={handleChange}
-                            isInvalid={touched.zipCode && !!errors.zipCode}
-                          />
-                          <Form.Control.Feedback type="invalid">{errors.zipCode}</Form.Control.Feedback>
-                        </FloatingLabel>
+                        {inputLoading ? (
+                          <FloatingLabel label="Complemento" className="animate-pulse">
+                            <Form.Control
+                              type="string"
+                              name="complement"
+                              value={complement}
+                              onChange={(e) => setComplement(e.target.value)}
+                              required
+                            />
+                          </FloatingLabel>
+                        ) : (
+                          <FloatingLabel label="Complemento">
+                            <Form.Control
+                              type="string"
+                              name="complement"
+                              value={complement}
+                              onChange={(e) => setComplement(e.target.value)}
+                              required
+                            />
+                          </FloatingLabel>
+                        )}
 
-                        <FloatingLabel label="Cidade">
-                          <Form.Control
-                            type="string"
-                            name="city"
-                            value={values.city}
-                            onChange={handleChange}
-                            isInvalid={touched.city && !!errors.city}                            
-                          />
-                          <Form.Control.Feedback type="invalid">{errors.city}</Form.Control.Feedback>
-                        </FloatingLabel>                        
+                        {inputLoading ? (
+                          <FloatingLabel label="Cidade" className="animate-pulse">
+                            <Form.Control
+                              type="string"
+                              name="city"
+                              value={city}
+                              onChange={(e) => setCity(e.target.value)}
+                              required
+                              disabled
+                            />
+                          </FloatingLabel>
+                        ) : (
+                          <FloatingLabel label="Cidade">
+                            <Form.Control
+                              type="string"
+                              name="city"
+                              value={city}
+                              onChange={(e) => setCity(e.target.value)}
+                              required
+                            />
+                          </FloatingLabel>
+                        )}
 
-                        <FloatingLabel label="Estado">
-                          <Form.Control
-                            type="string"
-                            name="state"
-                            value={values.state}
-                            onChange={handleChange}
-                            isInvalid={touched.state && !!errors.state}
-                            className="w-1/2"
-                          />
-                          <Form.Control.Feedback type="invalid">{errors.state}</Form.Control.Feedback>
-                        </FloatingLabel>
-                      </Form.Group>     
+                        {inputLoading ? (
+                          <FloatingLabel label="Estado" className="animate-pulse">
+                            <Form.Control
+                              type="string"
+                              name="state"
+                              value={state}
+                              onChange={(e) => setState(e.target.value)}
+                              required
+                              disabled
+                              className="w-1/2"
+                            />
+                          </FloatingLabel>
+                        ) : (
+                          <FloatingLabel label="Estado">
+                            <Form.Control
+                              type="string"
+                              name="state"
+                              value={state}
+                              onChange={(e) => setState(e.target.value)}
+                              required
+                              className="w-1/2"
+                            />
+                          </FloatingLabel>
+                        )}
 
-                      <h1 className="text-xl font-blinker text-stone-400 select-none mb-1"> Produtos </h1>      
-                      <div className="w-[10rem] h-[0.5px] bg-stone-400 mb-[1rem]"></div>
+                      </Form.Group>
 
-                      <Form.Select>
-                                            
-                      </Form.Select>
+                      <h1 className="text-xl font-blinker text-stone-400 select-none mb-1"> Produtos </h1>
+                      <div className="w-[10rem] h-[0.5px] bg-stone-300 mb-[1rem]"></div>
+
+                      <h2 className="m-2 font-blinker select-none text-stone-400">Selecione um ou mais produtos</h2>
+                      <section className="overflow-auto h-[15rem] w-[32rem]">
+                        {products.map((product: APIproduct, i: number) => {
+                          return (
+                            <ListGroup defaultActiveKey={i} className="w-[30rem]">
+                              <ListGroup.Item className="flex flex-row items-center mt-3 justify-between">
+                                <div className="flex flex-row gap-2 items-center">
+                                  <Link to={`../../dashboard/product/${product.id}`}>
+                                    <Image src={product.details.imgLink} alt={product.name} className="w-[50px] h-[50px] object-cover" />
+                                  </Link>
+                                  <div className="flex flex-col gap-1">
+                                    <span className="text-stone-500 font-blinker text-lg">{product.name}</span>
+                                    <Form.Check type="checkbox" label="Adicionar" />
+                                  </div>
+                                </div>
+                                <div className="flex flex-row gap-0 items-center justify-center">
+                                  <button type="button">
+                                    <CaretLeft weight="fill" />
+                                  </button>
+                                  <span className="font-blinker">{product.quantity}</span>
+                                  <button type="button">
+                                    <CaretRight weight="fill" />
+                                  </button>
+                                </div>
+                              </ListGroup.Item>
+                            </ListGroup>
+                          )
+                        })}
+                      </section>
                     </Col>
 
                     <Col sm>
                       <h1 className="text-xl font-blinker text-stone-400 select-none mb-3"> Pagamento </h1>
                       <Form.Group className="flex flex-col gap-3">
                         <FloatingLabel controlId="paymentForm" label="Forma de Pagamento">
-                          <Form.Control
+                          {/* <Form.Control
                             type="text"
                             name="paymentForm"
                             value={values.paymentForm}
                             onChange={handleChange}
                             isInvalid={touched.paymentForm && !!errors.paymentForm}
-                          />
+                          /> */}
+                          <Form.Select
+                            name="paymentForm"
+                            value={values.paymentForm}
+                            onChange={handleChange}
+                            isInvalid={touched.paymentForm && !!errors.paymentForm}
+                          >
+                            <option value="">Selecione uma opção</option>
+                            <option value="credit">Crédito</option>
+                            <option value="debit">Débito</option>
+                            <option value="money">Dinheiro</option>
+                            <option value="pix">Pix</option>
+                          </Form.Select>
                           <Form.Control.Feedback type="invalid">{errors.paymentForm}</Form.Control.Feedback>
                         </FloatingLabel>
 
-                        <FloatingLabel controlId="total" label="Total">
-                          <Form.Control
-                            type="number"
-                            name="total"
-                            value={values.total}
-                            onChange={handleChange}
-                            isInvalid={touched.total && !!errors.total}
-                          />
-                          <Form.Control.Feedback type="invalid">{errors.total}</Form.Control.Feedback>
-                        </FloatingLabel>
+                        <InputGroup>                          
+                            <InputGroup.Text>R$</InputGroup.Text>
+                            <Form.Control
+                              type="number"
+                              name="total"
+                              placeholder="Total"
+                              value={values.total}
+                              onChange={handleChange}
+                              isInvalid={touched.total && !!errors.total}
+                            />
+                            <Form.Control.Feedback type="invalid">{errors.total}</Form.Control.Feedback>                          
+                        </InputGroup>
                       </Form.Group>
                     </Col>
                   </Row>

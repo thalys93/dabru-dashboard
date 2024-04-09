@@ -43,8 +43,16 @@ function Support() {
 
     interface supportMSG { support: string }
     const handleSendSupport = (value: supportMSG) => {
+
+        const infos = {
+            userEmail: /*UserInfo?.email as never,*/ 'luisthalys1@hotmail.com',
+            userName: UserInfo?.name as never,
+            id: cookies.userData.id as never,
+            errorReport: value.support
+        }
+
         const resPromise = new Promise((resolve) => {
-            sendReportEmail(UserInfo?.email as never, UserInfo?.name as never, value.support, cookies.authToken).then((res) => {
+            sendReportEmail(infos, cookies.authToken).then((res) => {
                 if (res) {
                     if (res.statusCode === 200) {
                         setSuccess(true)
@@ -78,8 +86,15 @@ function Support() {
     interface suggestionMSG { suggestion: string }
 
     const handleSendSuggestions = async (value: suggestionMSG) => {
+        const infos = {
+            userEmail: /*UserInfo?.email as never,*/ 'luisthalys1@hotmail.com',
+            userName: UserInfo?.name as never,
+            id: cookies.userData.id as never,
+            suggestion: value.suggestion
+        }
+
         const resPromise = new Promise((resolve) => {
-            sendSuggestionEmail(UserInfo?.email as never, UserInfo?.name as never, value.suggestion, cookies.authToken).then((res) => {
+            sendSuggestionEmail(infos ,cookies.authToken).then((res) => {
                 if (res) {
                     if (res.statusCode === 200) {
                         setSuccess(true)

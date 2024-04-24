@@ -285,15 +285,15 @@ function Login() {
 
         <section className="flex flex-row gap-3 mt-5">
           <button type="button" onClick={() => setCurrentIndex(0)}>
-            <Circle className={titles[currentIndex].id === 1 ? 'text-stone-50 animate__animated animate__fadeIn transition-all' : 'text-stone-500 transition-all'} />
+            <Circle weight={currentIndex === 0 ? "fill" : "regular"} className={titles[currentIndex].id === 1 ? 'text-stone-50 animate__animated animate__fadeIn transition-all' : 'text-stone-500 transition-all'} />
           </button>
 
           <button type="button" onClick={() => setCurrentIndex(1)}>
-            <Circle className={titles[currentIndex].id === 2 ? 'text-stone-50 animate__animated animate__fadeIn transition-all' : 'text-stone-500 transition-all'} />
+            <Circle weight={currentIndex === 1 ? "fill" : "regular"}  className={titles[currentIndex].id === 2 ? 'text-stone-50 animate__animated animate__fadeIn transition-all' : 'text-stone-500 transition-all'} />
           </button>
 
           <button type="button" onClick={() => setCurrentIndex(2)}>
-            <Circle className={titles[currentIndex].id === 3 ? 'text-stone-50 animate__animated animate__fadeIn transition-all' : 'text-stone-500 transition-all'} />
+            <Circle weight={currentIndex === 2 ? "fill" : "regular"} className={titles[currentIndex].id === 3 ? 'text-stone-50 animate__animated animate__fadeIn transition-all' : 'text-stone-500 transition-all'} />
           </button>
         </section>
       </div>

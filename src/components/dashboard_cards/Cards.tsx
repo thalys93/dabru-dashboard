@@ -34,7 +34,7 @@ function Cards({ ...props }: CardProps) {
 
   return (
     <Container fluid>
-      <Row className="items-center shadow-md shadow-stone-600 border-stone-400 border-1 p-3 w-[15rem] animate__animated animate__fadeInDown">
+      <Row className="items-center shadow-md shadow-stone-600 border-stone-400 border-1 p-3 w-[17rem] mt-[1rem] animate__animated animate__fadeInDown">
         <Col>
           <section className="flex flex-row items-center justify-start gap-1">
             <div className="h-[4rem] w-[0.5rem] mr-4" style={{ backgroundColor: props?.color }}></div>

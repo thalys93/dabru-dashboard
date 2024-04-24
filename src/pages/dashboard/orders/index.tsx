@@ -3,9 +3,10 @@ import { Link } from "react-router-dom"
 import { useCookies } from "react-cookie"
 import { Helmet } from "react-helmet"
 import { Slide, toast } from "react-toastify";
-import { Basket, Calendar, ChartDonut, DotsThreeCircleVertical, ListBullets, PlusCircle } from "@phosphor-icons/react"
-import { APIsendOrder, deleteOrder, getOrders } from "../../../utils/api/orders";
+import { Basket, Calendar, ChartDonut, CheckCircle, Clock, CreditCard, DotsThreeCircleVertical, FolderSimpleDashed, ListBullets, Money, PixLogo, PlusCircle, Warehouse, X, XCircle } from "@phosphor-icons/react"
 import { Modal, Spinner, Table } from "react-bootstrap";
+import { APIOrderResponse, APIOrderUnformatted, deleteOrderByID, getCustomers, getOrders } from "../../../utils/api/financial";
+import { TableProps } from "../../../components/dashboard_list/Customers_List";
 
 function Orders() {
     const [cookies] = useCookies(['authToken'])
@@ -14,30 +15,44 @@ function Orders() {
     const [isEmpty, setIsEmpty] = useState(false)
     const [showModal, setShowModal] = useState(false)
     const [shesExclude, setShesExclude] = useState(false)
-    const [selectedOrderID, setSelectedOrderID] = useState('')
+    const [selectedOrderID, setSelectedOrderID] = useState(0)
     const [selectedOrderIndex, setSelectedOrderIndex] = useState(0)
 
     useEffect(() => {
         const fetchData = async () => {
-            try {
-                const res = await getOrders(cookies.authToken)
-                if (res !== null && res.message !== "Nenhum pedido encontrado") {
-                    setOrders(res)
-                    setLoading(false)
+            getOrders(cookies.authToken).then((res) => {
+                if (res !== undefined) {
+                    getCustomers(cookies.authToken).then((customers) => {
+                        const customerById = customers.found.reduce((acc: any, curr: any) => {
+                            acc[curr.id] = curr
+                            return acc
+                        }, {})
+                        console.log(res.found);
+                        const formattedData = res.found.map((item: APIOrderUnformatted) => ({
+                            id: item.id,
+                            customer_name: customerById[item.customer_].name,
+                            address: item.address,
+                            items_number: item.cartItems.length,
+                            date: new Date(item.date).toLocaleDateString('pt-br'),
+                            paymentForm: item.paymentForm,
+                            status: item.status,
+                            total: item.total,
+                        }))
+                        setOrders(formattedData)
+                        setLoading(false)
+                    })
                 } else {
                     setIsEmpty(true)
                     setLoading(false)
                 }
-            } catch (e) {
-                console.log(e)
-            }
+            })
         }
         fetchData()
     }, [cookies.authToken])
 
-    const handleShowModal = (id: string, orderNumber: number) => {
+    const handleShowModal = (id: number) => {
         setSelectedOrderID(id)
-        setSelectedOrderIndex(orderNumber)
+        setSelectedOrderIndex(id)
         setShowModal(true)
     }
 
@@ -68,7 +83,7 @@ function Orders() {
         }
     }
 
-    const Info_Modal = ({ orderNumber, orderID }: { orderNumber: number, orderID: string }) => {
+    const Info_Modal = ({ orderNumber, orderID }: { orderNumber: number, orderID: number }) => {
         return (
             <Modal show={showModal} onHide={handleCloseModal} centered>
                 <Modal.Header closeButton>
@@ -91,12 +106,12 @@ function Orders() {
         )
     }
 
-    const handleDeleteOrder = async (id: string) => {
+    const handleDeleteOrder = async (id: number) => {
         setShesExclude(true)
         try {
-            const res = await deleteOrder(id, cookies.authToken)
+            const res = await deleteOrderByID(id, cookies.authToken)
             if (res !== null) {
-                toast.success(ToastInformation(res.code, res.message), {
+                toast.success(ToastInformation(res.statusCode, res.message), {
                     position: "top-right",
                     autoClose: 5000,
                     hideProgressBar: false,
@@ -128,6 +143,60 @@ function Orders() {
             console.log(e)
         }
     }
+
+    useEffect(() => {
+        const checkStatus = () => {
+            const colorMap: { [key: string]: string } = {
+                'Finalizado': '#059669',
+                'Em Preparo': '#e7cc00',
+                'Cancelado': '#e11d48',
+                'S/Status': '#4e4e4e',
+                'Pendente': '#f97316',
+            };
+
+            const checkMap: { [key: string]: JSX.Element } = {
+                'Finalizado': <CheckCircle size={20} weight="fill" />,
+                'Em Preparo': <Warehouse size={20} weight="fill" />,
+                'Cancelado': <XCircle size={20} weight="fill" />,
+                'S/Status': <FolderSimpleDashed size={20} weight="fill" />,
+                "Pendente": <Clock size={20} weight="fill" />,
+            }
+
+            const updatedCustomersData = orders.map((item: TableProps) => {
+                const color = colorMap[item.status] || '#059669';
+                const icon = checkMap[item.status] || null;
+
+                return { ...item, color, icon };
+            });
+
+            if (JSON.stringify(updatedCustomersData) !== JSON.stringify(orders)) {
+                setOrders(updatedCustomersData as never);
+            }
+        }
+        checkStatus()
+    }, [orders])  
+    
+    useEffect(() => {
+        const updatePaymentForms = () => {
+            const paymentIconMap: { [key: string]: JSX.Element } = {
+                'Dinheiro': <Money size={20} weight="fill" />,
+                'Cartão de Crédito': <CreditCard size={20} weight="fill" />,
+                'Cartão de Débito': <CreditCard size={20} weight="fill" />,
+                'Pix': <PixLogo size={20} weight="fill" />,
+            };
+
+            const updatedOrdersData = orders.map((item: APIOrderResponse) => {
+                const paymentIcon = paymentIconMap[item.paymentForm] || <FolderSimpleDashed size={20} weight="fill" />;
+
+                return { ...item, paymentIcon };
+            });
+
+            if (JSON.stringify(updatedOrdersData) !== JSON.stringify(orders)) {
+                setOrders(updatedOrdersData as never);
+            }
+        }
+        updatePaymentForms()
+    }, [orders])
 
 
     return (
@@ -210,34 +279,64 @@ function Orders() {
                                     </td>
                                 </tr>
                             ) : (
-                                orders?.map((or: APIsendOrder, i: number) => (
-                                    <tr key={i}>
+                                orders?.map((or: APIOrderResponse, i: number) => (
+                                    <tr key={i} className="select-none">
                                         <td className="w-[80px]">
                                             <div className="flex items-center justify-center h-[3rem]">
                                                 <span className="text-lg font-blinker text-stone-500">
-                                                    {i}
+                                                    {or.id}
                                                 </span>
                                             </div>
                                         </td>
                                         <td>
                                             <div className="flex items-center justify-center h-[3rem]">
                                                 <span className="text-lg font-blinker text-stone-500">
-                                                    {or.client_}
+                                                    {or.customer_name}
                                                 </span>
                                             </div>
                                         </td>
                                         <td>
                                             <div className="flex items-center justify-center h-[3rem]">
                                                 <span className="text-lg font-blinker text-stone-500">
-                                                    R$ {or.sale}
+                                                    {or.address[0].street}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className="flex items-center justify-start h-[3rem]">
+                                                <span className="text-lg font-blinker text-stone-500 flex-row gap-2 flex items-center ">
+                                                    {or.paymentIcon}
+                                                    {or.paymentForm}
                                                 </span>
                                             </div>
                                         </td>
                                         <td>
                                             <div className="flex items-center justify-center h-[3rem]">
                                                 <span className="text-lg font-blinker text-stone-500">
-                                                    {or.total}
+                                                    R$ {or.total}
                                                 </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className="flex items-center justify-center h-[3rem]">
+                                                <span className="text-lg font-blinker text-stone-500">
+                                                    {or.items_number}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className="flex items-center justify-center h-[3rem]">
+                                                <span className="text-lg font-blinker text-stone-500">
+                                                    {or.date.toString()}
+                                                </span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div className="flex items-center justify-center h-[3rem]">
+                                                <div className='p-1 rounded flex flex-row gap-1 w-[8rem] font-blinker text-lg h-[2.5rem] items-center justify-center' style={{ backgroundColor: or.color, color: '#FAFAFA' }}>
+                                                    {or.status}
+                                                    {or.icon}
+                                                </div>
                                             </div>
                                         </td>
                                         <td>
@@ -247,7 +346,7 @@ function Orders() {
                                                         Detalhes
                                                     </button>
                                                 </Link>
-                                                <button onClick={() => handleShowModal(or.id, i)} className="p-1 border-rose-500 border-[1px] rounded-md text-rose-500 hover:border-rose-300 hover:text-rose-300 transition-all font-blinker w-[5rem]">
+                                                <button onClick={() => handleShowModal(or.id)} className="p-1 border-rose-500 border-[1px] rounded-md text-rose-500 hover:border-rose-300 hover:text-rose-300 transition-all font-blinker w-[5rem]">
                                                     {!loading ? 'Excluir' : <Spinner size='sm' />}
                                                 </button>
                                             </div>

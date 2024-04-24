@@ -3,7 +3,8 @@ import React, { Suspense, lazy, useEffect, useState } from 'react'
 import { ClipboardText, Money, Package, Users } from '@phosphor-icons/react'
 import Pie_Chart from '../../../components/dashboard_charts/Pie_Chart'
 import { useCookies } from 'react-cookie'
-import { getOrders } from '../../../utils/api/orders'
+import { countOrders, countSales, getOrderPayments, getOrders, getOrdersStatuses, sumCustomers, sumOrdersTotals } from '../../../utils/api/financial'
+
 
 const Card = lazy(() => delayStateOfCards(import('./../../../components/dashboard_cards/Cards')))
 const Customers_List = lazy(() => delayState(import('./../../../components/dashboard_list/Customers_List')))
@@ -42,20 +43,8 @@ interface ChartsWithDelayProps {
 
 const ChartsWithDelay: React.FC<ChartsWithDelayProps> = ({ delay }) => {
   const [isReady, setIsReady] = useState(false)
-
-  const vendasData = [
-    { id: '1', value: 50, label: 'Dinheiro', color: '#0ee932' },
-    { id: '2', value: 20, label: 'Cartão de Crédito', color: '#0eb6e9' },
-    { id: '3', value: 5, label: 'Cartão de Débito', color: '#222222' },
-    { id: '4', value: 5, label: 'Pix', color: '#B01AAA' }
-  ]
-
-  const lucroData = [
-    { id: '1', value: 10, label: 'Pendentes', color: '#222222' },
-    { id: '2', value: 2, label: 'Em Andamento', color: '#0EA5E9' },
-    { id: '3', value: 10, label: 'Finalizado', color: '#0ee93d' },
-    { id: '4', value: 5, label: 'Cancelado', color: '#B01AAA' }
-  ]
+  const [ordersData, setOrdersData] = useState([])
+  const [ordersPayments, setOrdersPayments] = useState([])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -65,10 +54,34 @@ const ChartsWithDelay: React.FC<ChartsWithDelayProps> = ({ delay }) => {
     return () => clearTimeout(timer)
   }, [delay]);
 
+  const [cookies] = useCookies(['authToken'])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      Promise.all([
+        getOrdersStatuses(cookies.authToken),
+        getOrderPayments(cookies.authToken)
+      ]).then((values) => {
+        const ordersData = values[0];
+        const ordersPayments = values[1];
+
+        console.log(values);
+
+
+        setOrdersData(ordersData);
+        setOrdersPayments(ordersPayments);
+      }).catch((err) => {
+        console.log(err);
+      })
+    }
+
+    fetchData()
+  }, [])
+
   return isReady ? (
     <div className='flex lg:flex-row flex-col flex-grow-0 shrink-0'>
-      <Pie_Chart dataItems={vendasData as never} type="Vendas" id='1' />
-      <Pie_Chart dataItems={lucroData as never} type="Pedidos" id='2' />
+      <Pie_Chart dataItems={ordersData as never} type="Vendas" id='1' />
+      <Pie_Chart dataItems={ordersPayments as never} type="Pedidos" id='2' />
     </div>
   ) : (
     <div className='m-3'>
@@ -106,49 +119,70 @@ const CardWithDelay: React.FC<CardWithDelayProps> = ({ card, delay }) => {
   );
 };
 
-function Home() {  
+function Home() {
   const [cookies] = useCookies(['authToken'])
-  const [orders, setOrders] = useState([])
-  const [customers, setCustomers] = useState([])
-  const [products, setProducts] = useState([])
-  const [sales, setSales] = useState([])
-  const [trend, setTrend] = useState('')
+  const [ordersNumber, setOrdersNumber] = useState(0)
+  const [percentCustomers, setPercentCustomers] = useState('')
+  const [customersNumber, setCustomersNumber] = useState(0)
+  const [percentSales, setPercentSales] = useState('')
+  const [salesNumber, setSalesNumber] = useState(0)
+  const [percentOrders, setPercentOrders] = useState('')
+  const [allOrders, setAllOrders] = useState([])
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = new Promise((resolve, reject) => {
-        getOrders(cookies.authToken).then((data) => {
-          if (data.message === 'Nenhum pedido encontrado') {
-            resolve(data.message)
-            setOrders([])
-          } else {
-            resolve(data)
-            setOrders(data)
-          }
-        }).catch((err) => {
-          reject(err)
-        })
-      })            
-      await res            
+      Promise.all([
+        countOrders(cookies.authToken),
+        sumCustomers(cookies.authToken),
+        sumOrdersTotals(cookies.authToken),
+        countSales(cookies.authToken),
+        getOrders(cookies.authToken)
+      ]).then((values) => {
+        console.log(values);
+        const ordersNumber = values[0].pedidos;
+        const customersNumber = values[1].clientes;
+        const salesNumber = values[3].Vendas;
+        const cancelledNumber = values[3].Canceladas;
+        const allOrders = values[4].found;      
+
+        setOrdersNumber(ordersNumber);
+        setCustomersNumber(customersNumber);
+        setSalesNumber(salesNumber);
+        setAllOrders(allOrders);
+
+        const percentCustomers = percentCalc(customersNumber);
+        const percentSales = percentCalc(salesNumber - cancelledNumber);
+        const percentOrders = percentCalc(ordersNumber);
+
+        setPercentCustomers(percentCustomers);
+        setPercentSales(percentSales);
+        setPercentOrders(percentOrders);
+
+      }).catch((err) => {
+        console.log(err);
+      })
     }
 
     fetchData()
   }, [])
 
   const diaryResumeCards = [
-    { id: 1, title: 'Clientes', value: '1000', icon: <Users />, color: '#0EA5E9', percent: '+10%' },
-    { id: 2, title: 'Vendas', value: 'R$ 15,00', icon: <Money />, color: '#255853', percent: '-20%' },
-    { id: 3, title: 'Lucro', value: '80%', icon: <Package />, color: '#80B01A', percent: '+5%' },
-    { id: 4, title: 'Pedidos', value: orders.length, icon: <ClipboardText />, color: '#B01AAA', percent: orders.length === 0 ? '0%' : percentCalc(orders.length)}
+    { id: 1, title: 'Clientes', value: customersNumber, icon: <Users />, color: '#0EA5E9', percent: percentCustomers },
+    { id: 2, title: 'Vendas', value: `R$ ${salesNumber}`, icon: <Money />, color: '#255853', percent: percentSales },
+    { id: 4, title: 'Pedidos', value: ordersNumber, icon: <ClipboardText />, color: '#B01AAA', percent: percentOrders }
   ]
-
-  
 
   function percentCalc(value: number) {
     const referenceValue = 100;
-    const percent = (value / referenceValue) * 100;         
+    const percent = (value / referenceValue) * 100;
 
-    return `${percent.toFixed(2)} %`;
+    if (percent > 0) {
+      return `+${percent.toFixed(2)} %`;
+    } else if (percent < 0) {
+      return `${percent.toFixed(2)} %`;
+    } else {
+      return `${percent.toFixed(2)} %`;
+    }
   }
 
   return (
@@ -176,7 +210,7 @@ function Home() {
         <div className='w-[10rem] h-[1px] bg-stone-300'></div>
         <div>
           <Suspense fallback={<div className='m-3'><Spinner /></div>}>
-            <Customers_List />
+            <Customers_List/>
           </Suspense>
         </div>
       </article>

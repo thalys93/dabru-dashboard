@@ -91,7 +91,7 @@ export const getOrders = async (token: string) => {
     }
 }
 
-export const getOrdersByID = async (id: string, token: string) => {
+export const getOrdersByID = async (id: string | any , token: string) => {
     try {
         const res = await apiURL_Local.get(`api/financial/orders/${id}`, AuthHeaders(token));
         if (res.data.message === 'Pedido não encontrado') {

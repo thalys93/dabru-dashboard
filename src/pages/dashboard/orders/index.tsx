@@ -341,7 +341,7 @@ function Orders() {
                                         </td>
                                         <td>
                                             <div className="flex flex-row gap-3 items-center justify-center h-[3rem]">
-                                                <Link to={`../product/${or.id}`}>
+                                                <Link to={`../orders/${or.id}`}>
                                                     <button className="p-1 bg-emerald-500 rounded-md text-stone-50 border-[1px] border-emerald-500 hover:bg-emerald-400 hover:border-emerald-400 transition-all font-blinker w-[5rem]">
                                                         Detalhes
                                                     </button>

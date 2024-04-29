@@ -137,7 +137,7 @@ function Login() {
         <Row>
           <Col className="bg-stone-100 flex flex-col justify-center h-screen" sm>
             <div className="select-none lg:ml-[5rem] lg:mr-[5rem] mb-[5rem] lg:mb-5">
-              <h3 className="font-bebas text-lg text-stone-500"> DABRU - ATELIÊ </h3>
+              <h3 className="font-bebas text-lg text-stone-500"> EC - Gestor </h3>
               <h1 className="font-blinker text-2xl text-stone-500">Inicie a Sessão da sua Conta</h1>
               <div className="w-[auto] h-[1.2px] bg-stone-500 mb-2"></div>
               <p className="text-stone-400 font-abel text-lg leading-5">
@@ -230,11 +230,10 @@ function Login() {
             </div>
             <div className="flex flex-col justify-center items-center mt-5">
               <Figure>
-                <Figure.Image
-                  width={130}
-                  roundedCircle
-                  alt="171x180"
-                  src="/img/logo_branco.png"
+                <Figure.Image                                
+                  className="w-[150px] h-[150px] object-cover"
+                  roundedCircle                  
+                  src="/img/company_logo.png"
                 />
               </Figure>
             </div>

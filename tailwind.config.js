@@ -2,26 +2,26 @@
 export default {
   content: [
     "./index.html",
-    "./src/**/*.{ts,tsx}",  
+    "./src/**/*.{ts,tsx}",
   ],
-  darkMode: 'class',  
+  darkMode: 'class',
   theme: {
     fontFamily: {
       'bebas': ['Bebas Neue, cursive'],
       'blinker': ['Blinker, sans-serif'],
       'abel': ['Abel, sans-serif'],
-    },  
+    },
     screens: {
       'sm': '576px',
       'md': '960px',
       'lg': '1440px',
-    },  
+    },
     extend: {
       colors: {
         PJwhite: "#DEDEDE",
         gray: "#545454",
         black: "#3A3A3A",
-      }      
+      }
     },
   },
   plugins: [

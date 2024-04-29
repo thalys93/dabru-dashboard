@@ -1,5 +1,5 @@
 import { apiURL_Local } from "./api";
-import { APIsendOrder } from "./orders";
+import { APIOrderResponse } from "./financial";
 
 export interface clientData {
     name: string;
@@ -7,7 +7,7 @@ export interface clientData {
     address: [];
     phone: string;
     lastName: string;
-    request: APIsendOrder[];
+    order: APIOrderResponse[];
 }
 
 // Rotas Públicas

@@ -234,7 +234,7 @@ function Support() {
                 <span className='font-blinker text-stone-400 uppercase select-none text-md'>Suporte Técnico</span>
                 <div className='w-[10rem] h-[1px] bg-stone-300'></div>
 
-                <h1 className='text-stone-400 font-blinker text-2xl select-none mt-3'>Como podemos Ajudar você hoje? , {UserInfo.name} </h1>
+                <h1 className='text-stone-400 font-blinker text-2xl select-none mt-3'>Como podemos Ajudar você hoje? , {UserInfo?.name} </h1>
 
                 <Col className="flex flex-col lg:flex-row gap-5 items-center justify-center mt-[5rem]">
                     <Card className='text-stone-500 shadow-md shadow-stone-300 w-[15rem]' >
@@ -266,7 +266,7 @@ function Support() {
             </Row>
 
             <footer className="flex flex-row items-center justify-center mt-[8rem]">
-                <span className='text-stone-300 font-blinker text-md select-none mt-5'>Thalys © 2024 - 2030 | Todos os Direitos Reservados</span>
+                <span className='text-stone-300 font-blinker text-md select-none mt-5'>ECgestor © 2024 - 2030 | Todos os Direitos Reservados</span>
             </footer>
         </Container>
     )

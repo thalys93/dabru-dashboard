@@ -51,7 +51,7 @@ function Login() {
           } else {
             reject(true)
           }
-        } , 1500)
+        }, 1500)
       });
 
       const result = await toast.promise(
@@ -230,9 +230,9 @@ function Login() {
             </div>
             <div className="flex flex-col justify-center items-center mt-5">
               <Figure>
-                <Figure.Image                                
+                <Figure.Image
                   className="w-[150px] h-[150px] object-cover"
-                  roundedCircle                  
+                  roundedCircle
                   src="/img/company_logo.png"
                 />
               </Figure>
@@ -288,7 +288,7 @@ function Login() {
           </button>
 
           <button type="button" onClick={() => setCurrentIndex(1)}>
-            <Circle weight={currentIndex === 1 ? "fill" : "regular"}  className={titles[currentIndex].id === 2 ? 'text-stone-50 animate__animated animate__fadeIn transition-all' : 'text-stone-500 transition-all'} />
+            <Circle weight={currentIndex === 1 ? "fill" : "regular"} className={titles[currentIndex].id === 2 ? 'text-stone-50 animate__animated animate__fadeIn transition-all' : 'text-stone-500 transition-all'} />
           </button>
 
           <button type="button" onClick={() => setCurrentIndex(2)}>

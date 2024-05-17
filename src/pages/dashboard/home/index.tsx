@@ -69,7 +69,7 @@ const ChartsWithDelay: React.FC<ChartsWithDelayProps> = ({ delay }) => {
 
 
         setOrdersData(ordersData);
-        setOrdersPayments(ordersPayments);
+        setOrdersPayments(ordersPayments);        
       }).catch((err) => {
         console.log(err);
       })

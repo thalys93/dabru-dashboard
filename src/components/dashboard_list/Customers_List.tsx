@@ -47,14 +47,15 @@ function Customers_List() {
             setIsLoading(true)
             getOrders(cookies.authToken).then((res) => {
                 if (res !== undefined) {
+                    const truncateUID = (uid: string) => uid.slice(0, 8) // Trunca o UUID para 8 caracteres 
                     getCustomers(cookies.authToken).then((customers) => {
                         const customerById = customers.found.reduce((acc: any, curr: any) => {
                             acc[curr.id] = curr
                             return acc
                         }, {})
-                        const formattedData = res.found.map((item: any) => ({
-                            index: item.id,
-                            id: item.id,
+                        const formattedData = res.found.map((item: any, index: number) => ({
+                            index: index + 1,
+                            id: truncateUID(item.customer_),
                             customer_name: customerById[item.customer_].name,
                             items: item.cartItems.length,
                             date: new Date(item.date).toLocaleDateString('pt-br'),

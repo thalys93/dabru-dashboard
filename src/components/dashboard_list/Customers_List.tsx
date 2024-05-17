@@ -47,7 +47,11 @@ function Customers_List() {
             setIsLoading(true)
             getOrders(cookies.authToken).then((res) => {
                 if (res !== undefined) {
-                    const truncateUID = (uid: string) => uid.slice(0, 8) // Trunca o UUID para 8 caracteres 
+                    const truncateUID = (uid: string) => uid.slice(0, 8) // Trunca o UUID para 8 caracteres
+                    const fixedTotal = (total: string) => {
+                        const fixed = parseInt(total).toFixed(2)
+                        return fixed
+                    } // Fixa o total para 2 casas decimais
                     getCustomers(cookies.authToken).then((customers) => {
                         const customerById = customers.found.reduce((acc: any, curr: any) => {
                             acc[curr.id] = curr
@@ -57,10 +61,10 @@ function Customers_List() {
                             index: index + 1,
                             id: truncateUID(item.customer_),
                             customer_name: customerById[item.customer_].name,
-                            items: item.cartItems.length,
+                            items: item.cartItems.length.toFixed(1),
                             date: new Date(item.date).toLocaleDateString('pt-br'),
                             status: item.status,
-                            total: item.total,
+                            total: fixedTotal(item.total),
                         }));
                         setCustomersData(formattedData as never)
                         setIsLoading(false)

@@ -133,6 +133,17 @@ function Products() {
         })
     }
 
+    const convertToFixed = (value: number) => {
+        const numericValue = typeof value === 'string' ? parseFloat(value) : value;
+
+        if (isNaN(numericValue)) {
+            throw new Error('O valor fornecido não é um número válido.');
+        }
+
+        const fixedValue = numericValue.toFixed(2);
+        return fixedValue;
+    }
+
     return (
         <section className="flex flex-col items-start justify-start m-3">
             <Helmet>
@@ -205,7 +216,7 @@ function Products() {
                                         <td>
                                             <div className="flex items-center justify-center h-[3rem]">
                                                 <span className="text-lg font-blinker text-stone-500">
-                                                    R$ {pr.value}
+                                                    R$ {convertToFixed(pr.value)}
                                                 </span>
                                             </div>
                                         </td>
